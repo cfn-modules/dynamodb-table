@@ -15,6 +15,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: 'cfn-modules: AWS DynamoDB table'
 # cfn-modules:implements(ExposeArn, ExposeName, LambdaDependency)
+# TODO add backup mechanism (and remove limitation)
 Parameters:
   AlertingModule:
     Description: 'Optional but recommended stack name of alerting module.'

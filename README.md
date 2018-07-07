@@ -143,3 +143,8 @@ Resources:
     </tr>
   </tbody>
 </table>
+
+## Limitations
+
+* Secure: Backups are not enabled
+
