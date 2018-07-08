@@ -146,5 +146,5 @@ Resources:
 
 ## Limitations
 
-* Secure: Backups are not enabled
+* Secure: DynamoDB table is not backed up
 
