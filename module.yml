@@ -67,7 +67,7 @@ Parameters:
     Description: 'Target read capacity utilization (in percent) that auto scaling tries to achieve (if you have spiky reads, a lower number is better).'
     Type: Number
     Default: 80
-  Encryption: # TODO DynamoDB does not support customer managed CMKs. How should we handle this? Remove encryption?
+  Encryption: # TODO DynamoDB does not support customer managed CMKs. How should we handle this? Remove Encryption parameter and wait for customer managed CMK support using the kms-key module?
     Description: 'Enable server side encryption using KMS (AWS managed) CMK.'
     Type: String
     Default: false
