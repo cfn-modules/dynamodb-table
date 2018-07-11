@@ -72,16 +72,11 @@ Parameters:
     Type: String
     Default: false
     AllowedValues: [aws, false]
-  StreamViewType: # TODO add to Readme.md
+  StreamViewType:
     Description: 'Determines the information that the stream captures when an item in the table is modified.'
     Type: String
     Default: DISABLED
-    AllowedValues:
-    - DISABLED
-    - KEYS_ONLY
-    - NEW_IMAGE
-    - OLD_IMAGE
-    - NEW_AND_OLD_IMAGES
+    AllowedValues: [DISABLED, KEYS_ONLY, NEW_IMAGE, OLD_IMAGE, NEW_AND_OLD_IMAGES]
 Conditions:
   HasAlertingModule: !Not [!Equals [!Ref AlertingModule, '']]
   HasSortKey: !Not [!Equals [!Ref SortKeyName, '']]
@@ -281,7 +276,7 @@ Outputs:
   ModuleId:
     Value: 'dynamodb-table'
   ModuleVersion:
-    Value: '0.0.5'
+    Value: '0.0.7'
   StackName:
     Value: !Ref 'AWS::StackName'
   Arn:
@@ -289,7 +284,7 @@ Outputs:
     Export:
       Name: !Sub '${AWS::StackName}-Arn'
   IamActions:
-    Value: 'dynamodb:Batch*Item,dynamodb:DeleteItem,dynamodb:GetItem,dynamodb:PutItem'
+    Value: 'dynamodb:Batch*Item,dynamodb:DeleteItem,dynamodb:GetItem,dynamodb:PutItem,dynamodb:Query,dynamodb:Scan,dynamodb:UpdateItem'
     Export:
       Name: !Sub '${AWS::StackName}-IamActions'
   IamResources:
