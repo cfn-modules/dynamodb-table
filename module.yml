@@ -72,11 +72,22 @@ Parameters:
     Type: String
     Default: false
     AllowedValues: [aws, false]
+  StreamViewType: # TODO add to Readme.md
+    Description: 'Determines the information that the stream captures when an item in the table is modified.'
+    Type: String
+    Default: DISABLED
+    AllowedValues:
+    - DISABLED
+    - KEYS_ONLY
+    - NEW_IMAGE
+    - OLD_IMAGE
+    - NEW_AND_OLD_IMAGES
 Conditions:
   HasAlertingModule: !Not [!Equals [!Ref AlertingModule, '']]
   HasSortKey: !Not [!Equals [!Ref SortKeyName, '']]
   HasTableName: !Not [!Equals [!Ref TableName, '']]
   HasAwsManagedEncryption: !Equals [!Ref Encryption, aws]
+  HasStream: !Not [!Equals [!Ref StreamViewType, 'DISABLED']]
 Resources:
   Table:
     Type: 'AWS::DynamoDB::Table'
@@ -103,6 +114,7 @@ Resources:
         WriteCapacityUnits: !Ref MinWriteCapacityUnits
       SSESpecification:
         SSEEnabled: !If [HasAwsManagedEncryption, true, false]
+      StreamSpecification: !If [HasStream, {StreamViewType: !Ref StreamViewType}, !Ref 'AWS::NoValue']
   RoleScaling:
     Type: 'AWS::IAM::Role'
     Properties:
@@ -288,3 +300,8 @@ Outputs:
     Value: !Ref Table
     Export:
       Name: !Sub '${AWS::StackName}-Name'
+  StreamArn:
+    Condition: HasStream
+    Value: !GetAtt 'Table.StreamArn'
+    Export:
+      Name: !Sub '${AWS::StackName}-StreamArn'

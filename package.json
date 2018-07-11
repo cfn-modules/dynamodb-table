@@ -1,6 +1,6 @@
 {
   "name": "@cfn-modules/dynamodb-table",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "AWS DynamoDB table with auto scaling and alerting",
   "author": "Michael Wittig <michael@widdix.de>",
   "license": "Apache-2.0",
