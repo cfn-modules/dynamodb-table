@@ -37,6 +37,7 @@ Resources:
         MinReadCapacityUnits: 1 # optional
         ReadCapacityUnitsUtilizationTarget: 80 # optional
         Encryption: false # optional
+        StreamViewType: 'DISABLED' # optional
       TemplateURL: './node_modules/@cfn-modules/dynamodb-table/module.yml'
 ```
 
@@ -143,6 +144,13 @@ Resources:
       <td>false</td>
       <td>no</td>
       <td>[aws, false]</td>
+    </tr>
+    <tr>
+      <td>StreamViewType</td>
+      <td>Determines the information that the stream captures when an item in the table is modified</td>
+      <td>DISABLED</td>
+      <td>no</td>
+      <td>[DISABLED, KEYS_ONLY, NEW_IMAGE, OLD_IMAGE, NEW_AND_OLD_IMAGES]</td>
     </tr>
   </tbody>
 </table>
