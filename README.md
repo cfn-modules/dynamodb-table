@@ -30,14 +30,14 @@ Resources:
         PartitionKeyType: S # optional
         SortKeyName: '' # optional
         SortKeyType: N # optional
-        MaxWriteCapacityUnits: 1 # optional
-        MinWriteCapacityUnits: 1 # optional
-        WriteCapacityUnitsUtilizationTarget: 80 # optional
-        MaxReadCapacityUnits: 1 # optional
-        MinReadCapacityUnits: 1 # optional
-        ReadCapacityUnitsUtilizationTarget: 80 # optional
-        Encryption: false # optional
-        StreamViewType: 'DISABLED' # optional
+        MaxWriteCapacityUnits: '1' # optional
+        MinWriteCapacityUnits: '1' # optional
+        WriteCapacityUnitsUtilizationTarget: '80' # optional
+        MaxReadCapacityUnits: '1' # optional
+        MinReadCapacityUnits: '1' # optional
+        ReadCapacityUnitsUtilizationTarget: '80' # optional
+        Encryption: 'false' # optional
+        StreamViewType: DISABLED # optional
       TemplateURL: './node_modules/@cfn-modules/dynamodb-table/module.yml'
 ```
 
