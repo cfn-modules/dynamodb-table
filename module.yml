@@ -215,25 +215,6 @@ Resources:
       - 'Fn::ImportValue': !Sub '${AlertingModule}-Arn'
       OKActions:
       - 'Fn::ImportValue': !Sub '${AlertingModule}-Arn'
-  ThrottledRequestsEventsAlarm:
-    Condition: HasAlertingModule
-    Type: 'AWS::CloudWatch::Alarm'
-    Properties:
-      AlarmDescription: 'Batch requests are throttled. Lower {Read/Write}CapacityUnitsUtilizationTarget or increase Max{Read/Write}CapacityUnits.'
-      Namespace: 'AWS/DynamoDB'
-      MetricName: ThrottledRequests
-      Dimensions:
-      - Name: TableName
-        Value: !Ref Table
-      Statistic: Sum
-      Period: 60
-      EvaluationPeriods: 1
-      Threshold: 1
-      ComparisonOperator: GreaterThanOrEqualToThreshold
-      AlarmActions:
-      - 'Fn::ImportValue': !Sub '${AlertingModule}-Arn'
-      OKActions:
-      - 'Fn::ImportValue': !Sub '${AlertingModule}-Arn'
   UserErrorsAlarm:
     Condition: HasAlertingModule
     Type: 'AWS::CloudWatch::Alarm'
@@ -276,7 +257,7 @@ Outputs:
   ModuleId:
     Value: 'dynamodb-table'
   ModuleVersion:
-    Value: '0.0.7'
+    Value: '1.0.0'
   StackName:
     Value: !Ref 'AWS::StackName'
   Arn:
