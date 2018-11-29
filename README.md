@@ -30,6 +30,7 @@ Resources:
         PartitionKeyType: S # optional
         SortKeyName: '' # optional
         SortKeyType: N # optional
+        BillingAndScalingMode: PROVISIONED # optional
         MaxWriteCapacityUnits: '1' # optional
         MinWriteCapacityUnits: '1' # optional
         WriteCapacityUnitsUtilizationTarget: '80' # optional
@@ -95,6 +96,13 @@ Resources:
       <td>N</td>
       <td>no</td>
       <td>[S, N, B]</td>
+    </tr>
+    <tr>
+      <td>BillingAndScalingMode</td>
+      <td>Specify how you are charged for read and write throughput and how you manage capacity.</td>
+      <td>PROVISIONED</td>
+      <td>no</td>
+      <td>[PROVISIONED, ONDEMAND]</td>
     </tr>
     <tr>
       <td>MaxWriteCapacityUnits</td>
