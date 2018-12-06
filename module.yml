@@ -43,28 +43,33 @@ Parameters:
     Type: String
     Default: N
     AllowedValues: [S, N, B]
+  BillingAndScalingMode:
+    Description: 'Specify how you are charged for read and write throughput and how you manage capacity.'
+    Type: String
+    Default: PROVISIONED
+    AllowedValues: [PROVISIONED, ONDEMAND]
   MaxWriteCapacityUnits:
-    Description: 'Maximum write capacity units used during auto scaling.'
+    Description: 'Maximum write capacity units used during auto scaling (ignored when BillingAndScalingMode := ONDEMAND).'
     Type: Number
     Default: 1
   MinWriteCapacityUnits:
-    Description: 'Minimum write capacity units used during auto scaling.'
+    Description: 'Minimum write capacity units used during auto scaling (ignored when BillingAndScalingMode := ONDEMAND).'
     Type: Number
     Default: 1
   WriteCapacityUnitsUtilizationTarget:
-    Description: 'Target write capacity utilization (in percent) that auto scaling tries to achieve (if you have spiky writes, a lower number is better).'
+    Description: 'Target write capacity utilization (in percent) that auto scaling tries to achieve (if you have spiky writes, a lower number is better; ignored when BillingAndScalingMode := ONDEMAND).'
     Type: Number
     Default: 80
   MaxReadCapacityUnits:
-    Description: 'Maximum read capacity units used during auto scaling.'
+    Description: 'Maximum read capacity units used during auto scaling (ignored when BillingAndScalingMode := ONDEMAND).'
     Type: Number
     Default: 1
   MinReadCapacityUnits:
-    Description: 'Minimum read capacity units used during auto scaling.'
+    Description: 'Minimum read capacity units used during auto scaling (ignored when BillingAndScalingMode := ONDEMAND).'
     Type: Number
     Default: 1
   ReadCapacityUnitsUtilizationTarget:
-    Description: 'Target read capacity utilization (in percent) that auto scaling tries to achieve (if you have spiky reads, a lower number is better).'
+    Description: 'Target read capacity utilization (in percent) that auto scaling tries to achieve (if you have spiky reads, a lower number is better; ignored when BillingAndScalingMode := ONDEMAND).'
     Type: Number
     Default: 80
   Encryption: # TODO DynamoDB does not support customer managed CMKs. How should we handle this? Remove Encryption parameter and wait for customer managed CMK support using the kms-key module?
@@ -83,6 +88,7 @@ Conditions:
   HasTableName: !Not [!Equals [!Ref TableName, '']]
   HasAwsManagedEncryption: !Equals [!Ref Encryption, aws]
   HasStream: !Not [!Equals [!Ref StreamViewType, 'DISABLED']]
+  HasBillingAndScalingModeProvisioned: !Equals [!Ref BillingAndScalingMode, PROVISIONED]
 Resources:
   Table:
     Type: 'AWS::DynamoDB::Table'
@@ -96,6 +102,7 @@ Resources:
           AttributeType: !Ref SortKeyType
       - - AttributeName: !Ref PartitionKeyName
           AttributeType: !Ref PartitionKeyType
+      BillingMode: !If [HasBillingAndScalingModeProvisioned, PROVISIONED, PAY_PER_REQUEST]
       KeySchema: !If
       - HasSortKey
       - - AttributeName: !Ref PartitionKeyName
@@ -104,13 +111,12 @@ Resources:
           KeyType: RANGE
       - - AttributeName: !Ref PartitionKeyName
           KeyType: HASH
-      ProvisionedThroughput:
-        ReadCapacityUnits: !Ref MinReadCapacityUnits
-        WriteCapacityUnits: !Ref MinWriteCapacityUnits
+      ProvisionedThroughput: !If [HasBillingAndScalingModeProvisioned, {ReadCapacityUnits: !Ref MinReadCapacityUnits, WriteCapacityUnits: !Ref MinWriteCapacityUnits}, !Ref 'AWS::NoValue']
       SSESpecification:
         SSEEnabled: !If [HasAwsManagedEncryption, true, false]
       StreamSpecification: !If [HasStream, {StreamViewType: !Ref StreamViewType}, !Ref 'AWS::NoValue']
   RoleScaling:
+    Condition: HasBillingAndScalingModeProvisioned
     Type: 'AWS::IAM::Role'
     Properties:
       AssumeRolePolicyDocument:
@@ -136,6 +142,7 @@ Resources:
             - 'cloudwatch:DeleteAlarms'
             Resource: '*'
   WriteScalableTarget:
+    Condition: HasBillingAndScalingModeProvisioned
     Type: 'AWS::ApplicationAutoScaling::ScalableTarget'
     Properties:
       MaxCapacity: !Ref MaxWriteCapacityUnits
@@ -145,6 +152,7 @@ Resources:
       ScalableDimension: 'dynamodb:table:WriteCapacityUnits'
       ServiceNamespace: dynamodb
   ReadScalableTarget:
+    Condition: HasBillingAndScalingModeProvisioned
     Type: 'AWS::ApplicationAutoScaling::ScalableTarget'
     Properties:
       MaxCapacity: !Ref MaxReadCapacityUnits
@@ -154,6 +162,7 @@ Resources:
       ScalableDimension: 'dynamodb:table:ReadCapacityUnits'
       ServiceNamespace: dynamodb
   WriteScalingPolicy:
+    Condition: HasBillingAndScalingModeProvisioned
     Type: 'AWS::ApplicationAutoScaling::ScalingPolicy'
     Properties:
       PolicyName: !Sub '${Table}-WriteScalingPolicy'
@@ -166,6 +175,7 @@ Resources:
         PredefinedMetricSpecification:
           PredefinedMetricType: DynamoDBWriteCapacityUtilization
   ReadScalingPolicy:
+    Condition: HasBillingAndScalingModeProvisioned
     Type: 'AWS::ApplicationAutoScaling::ScalingPolicy'
     Properties:
       PolicyName: !Sub '${Table}-ReadScalingPolicy'
@@ -257,7 +267,7 @@ Outputs:
   ModuleId:
     Value: 'dynamodb-table'
   ModuleVersion:
-    Value: '1.0.0'
+    Value: '1.1.0'
   StackName:
     Value: !Ref 'AWS::StackName'
   Arn:
