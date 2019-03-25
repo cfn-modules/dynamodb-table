@@ -22,3 +22,14 @@ test('on-demand', async t => {
     t.pass();
   }
 });
+
+test('ttl', async t => {
+  const stackName = cfntest.stackName();
+  try {
+    t.log(await cfntest.createStack(`${__dirname}/ttl.yml`, stackName, {}));
+    // what could we test here?
+  } finally {
+    t.log(await cfntest.deleteStack(stackName));
+    t.pass();
+  }
+});

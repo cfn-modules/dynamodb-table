@@ -39,6 +39,7 @@ Resources:
         ReadCapacityUnitsUtilizationTarget: '80' # optional
         Encryption: 'false' # optional
         StreamViewType: DISABLED # optional
+        TtlAttributeName: '' # optional
       TemplateURL: './node_modules/@cfn-modules/dynamodb-table/module.yml'
 ```
 
@@ -159,6 +160,13 @@ Resources:
       <td>DISABLED</td>
       <td>no</td>
       <td>[DISABLED, KEYS_ONLY, NEW_IMAGE, OLD_IMAGE, NEW_AND_OLD_IMAGES]</td>
+    </tr>
+    <tr>
+      <td>TtlAttributeName</td>
+      <td>Name of the TTL attribute that stores the expiration time for items in the table. The name can be 1–255 characters long, and has no character restrictions. (TTL is disabled if not set)</td>
+      <td></td>
+      <td>no</td>
+      <td></td>
     </tr>
   </tbody>
 </table>

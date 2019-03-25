@@ -82,6 +82,10 @@ Parameters:
     Type: String
     Default: DISABLED
     AllowedValues: [DISABLED, KEYS_ONLY, NEW_IMAGE, OLD_IMAGE, NEW_AND_OLD_IMAGES]
+  TtlAttributeName:
+    Description: 'Optional name of the TTL attribute that stores the expiration time for items in the table. The name can be 1–255 characters long, and has no character restrictions. (TTL is disabled if not set)'
+    Type: String
+    Default: ''
 Conditions:
   HasAlertingModule: !Not [!Equals [!Ref AlertingModule, '']]
   HasSortKey: !Not [!Equals [!Ref SortKeyName, '']]
@@ -89,11 +93,11 @@ Conditions:
   HasAwsManagedEncryption: !Equals [!Ref Encryption, aws]
   HasStream: !Not [!Equals [!Ref StreamViewType, 'DISABLED']]
   HasBillingAndScalingModeProvisioned: !Equals [!Ref BillingAndScalingMode, PROVISIONED]
+  HasTtlAttributeName: !Not [!Equals [!Ref TtlAttributeName, '']]
 Resources:
   Table:
     Type: 'AWS::DynamoDB::Table'
     Properties:
-      TableName: !If [HasTableName, !Ref TableName, !Ref 'AWS::NoValue']
       AttributeDefinitions: !If
       - HasSortKey
       - - AttributeName: !Ref PartitionKeyName
@@ -115,6 +119,8 @@ Resources:
       SSESpecification:
         SSEEnabled: !If [HasAwsManagedEncryption, true, false]
       StreamSpecification: !If [HasStream, {StreamViewType: !Ref StreamViewType}, !Ref 'AWS::NoValue']
+      TableName: !If [HasTableName, !Ref TableName, !Ref 'AWS::NoValue']
+      TimeToLiveSpecification: !If [HasTtlAttributeName, {AttributeName: !Ref TtlAttributeName, Enabled: true}, !Ref 'AWS::NoValue']
   RoleScaling:
     Condition: HasBillingAndScalingModeProvisioned
     Type: 'AWS::IAM::Role'
@@ -267,7 +273,7 @@ Outputs:
   ModuleId:
     Value: 'dynamodb-table'
   ModuleVersion:
-    Value: '1.1.0'
+    Value: '1.2.0'
   StackName:
     Value: !Ref 'AWS::StackName'
   Arn:
