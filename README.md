@@ -43,6 +43,14 @@ Resources:
       TemplateURL: './node_modules/@cfn-modules/dynamodb-table/module.yml'
 ```
 
+## Examples
+
+* [serverless-iam](https://github.com/cfn-modules/docs/tree/master/examples/serverless-iam)
+
+## Related modules
+
+* [lambda-event-source-dynamodb-stream](https://github.com/cfn-modules/lambda-event-source-dynamodb-stream)
+
 ## Parameters
 
 <table>
