@@ -40,6 +40,8 @@ Resources:
         Encryption: 'false' # optional
         StreamViewType: DISABLED # optional
         TtlAttributeName: '' # optional
+        BackupRetentionPeriod: '30' # optional
+        BackupScheduleExpression: 'cron(0 5 ? * * *)' # optional
       TemplateURL: './node_modules/@cfn-modules/dynamodb-table/module.yml'
 ```
 
@@ -176,10 +178,19 @@ Resources:
       <td>no</td>
       <td></td>
     </tr>
+    <tr>
+      <td>BackupRetentionPeriod</td>
+      <td>The number of days to keep backups of the table</td>
+      <td>30</td>
+      <td>no</td>
+      <td>[1-35]</td>
+    </tr>
+    <tr>
+      <td>BackupScheduleExpression</td>
+      <td>A CRON expression specifying when AWS Backup initiates a backup job</td>
+      <td>cron(0 5 ? * * *)</td>
+      <td>no</td>
+      <td></td>
+    </tr>
   </tbody>
 </table>
-
-## Limitations
-
-* Secure: DynamoDB table is not backed up
-
