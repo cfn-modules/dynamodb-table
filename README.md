@@ -42,6 +42,7 @@ Resources:
         TtlAttributeName: '' # optional
         BackupRetentionPeriod: '30' # optional
         BackupScheduleExpression: 'cron(0 5 ? * * *)' # optional
+        PointInTimeRecoveryEnabled: 'true' # optional
       TemplateURL: './node_modules/@cfn-modules/dynamodb-table/module.yml'
 ```
 
@@ -191,6 +192,13 @@ Resources:
       <td>cron(0 5 ? * * *)</td>
       <td>no</td>
       <td></td>
+    </tr>
+    <tr>
+      <td>PointInTimeRecoveryEnabled</td>
+      <td>Indicates whether point in time recovery is enabled (true) or disabled (false) on the table</td>
+      <td>true</td>
+      <td>no</td>
+      <td>[true, false]</td>
     </tr>
   </tbody>
 </table>

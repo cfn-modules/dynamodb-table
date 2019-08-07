@@ -15,7 +15,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: 'cfn-modules: AWS DynamoDB table'
 # cfn-modules:implements(ExposeArn, ExposeName, LambdaDependency)
-# TODO add backup mechanism (and remove limitation)
 Parameters:
   AlertingModule:
     Description: 'Optional but recommended stack name of alerting module.'
@@ -96,6 +95,11 @@ Parameters:
     Description: 'A CRON expression specifying when AWS Backup initiates a backup job.'
     Type: String
     Default: 'cron(0 5 ? * * *)'
+  PointInTimeRecoveryEnabled:
+    Description: 'Indicates whether point in time recovery is enabled (true) or disabled (false) on the table.'
+    Type: String
+    Default: true
+    AllowedValues: [true, false]
 Conditions:
   HasAlertingModule: !Not [!Equals [!Ref AlertingModule, '']]
   HasSortKey: !Not [!Equals [!Ref SortKeyName, '']]
@@ -125,6 +129,8 @@ Resources:
           KeyType: RANGE
       - - AttributeName: !Ref PartitionKeyName
           KeyType: HASH
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: !Ref PointInTimeRecoveryEnabled
       ProvisionedThroughput: !If [HasBillingAndScalingModeProvisioned, {ReadCapacityUnits: !Ref MinReadCapacityUnits, WriteCapacityUnits: !Ref MinWriteCapacityUnits}, !Ref 'AWS::NoValue']
       SSESpecification:
         SSEEnabled: !If [HasAwsManagedEncryption, true, false]
