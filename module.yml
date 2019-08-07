@@ -15,7 +15,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: 'cfn-modules: AWS DynamoDB table'
 # cfn-modules:implements(ExposeArn, ExposeName, LambdaDependency)
-# TODO add backup mechanism (and remove limitation)
 Parameters:
   AlertingModule:
     Description: 'Optional but recommended stack name of alerting module.'
@@ -86,6 +85,21 @@ Parameters:
     Description: 'Optional name of the TTL attribute that stores the expiration time for items in the table. The name can be 1–255 characters long, and has no character restrictions. (TTL is disabled if not set)'
     Type: String
     Default: ''
+  BackupRetentionPeriod:
+    Description: 'The number of days to keep backups of the table.'
+    Type: Number
+    MinValue: 1
+    MaxValue: 35
+    Default: 30
+  BackupScheduleExpression:
+    Description: 'A CRON expression specifying when AWS Backup initiates a backup job.'
+    Type: String
+    Default: 'cron(0 5 ? * * *)'
+  PointInTimeRecoveryEnabled:
+    Description: 'Indicates whether point in time recovery is enabled (true) or disabled (false) on the table.'
+    Type: String
+    Default: true
+    AllowedValues: [true, false]
 Conditions:
   HasAlertingModule: !Not [!Equals [!Ref AlertingModule, '']]
   HasSortKey: !Not [!Equals [!Ref SortKeyName, '']]
@@ -115,6 +129,8 @@ Resources:
           KeyType: RANGE
       - - AttributeName: !Ref PartitionKeyName
           KeyType: HASH
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: !Ref PointInTimeRecoveryEnabled
       ProvisionedThroughput: !If [HasBillingAndScalingModeProvisioned, {ReadCapacityUnits: !Ref MinReadCapacityUnits, WriteCapacityUnits: !Ref MinWriteCapacityUnits}, !Ref 'AWS::NoValue']
       SSESpecification:
         SSEEnabled: !If [HasAwsManagedEncryption, true, false]
@@ -269,11 +285,63 @@ Resources:
       - 'Fn::ImportValue': !Sub '${AlertingModule}-Arn'
       OKActions:
       - 'Fn::ImportValue': !Sub '${AlertingModule}-Arn'
+  BackupVault: # cannot be deleted with data
+    Type: 'AWS::Backup::BackupVault'
+    Properties:
+      BackupVaultName: !Ref 'AWS::StackName'
+      Notifications: !If [HasAlertingModule, {BackupVaultEvents: [BACKUP_JOB_STARTED, BACKUP_JOB_COMPLETED, RESTORE_JOB_STARTED, RESTORE_JOB_COMPLETED, RECOVERY_POINT_MODIFIED], SNSTopicArn: {'Fn::ImportValue': !Sub '${AlertingModule}-Arn'}}, !Ref 'AWS::NoValue']
+  BackupPlan:
+    Type: 'AWS::Backup::BackupPlan'
+    Properties:
+      BackupPlan:
+        BackupPlanName: !Ref 'AWS::StackName'
+        BackupPlanRule:
+        - CompletionWindowMinutes: 1440
+          Lifecycle:
+            DeleteAfterDays: !Ref BackupRetentionPeriod
+          RuleName: !Ref 'AWS::StackName'
+          ScheduleExpression: !Ref BackupScheduleExpression
+          StartWindowMinutes: 60
+          TargetBackupVault: !Ref BackupVault
+  BackupRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: 'backup.amazonaws.com'
+          Action: 'sts:AssumeRole'
+      Policies:
+      - PolicyName: backup
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - 'dynamodb:DescribeTable'
+            - 'dynamodb:CreateBackup'
+            Resource: !GetAtt 'Table.Arn'
+          - Effect: Allow
+            Action:
+            - 'dynamodb:DescribeBackup'
+            - 'dynamodb:DeleteBackup'
+            Resource: !Sub '${Table.Arn}/backup/*'
+  BackupSelection:
+    Type: 'AWS::Backup::BackupSelection'
+    Properties:
+      BackupPlanId: !Ref BackupPlan
+      BackupSelection:
+        IamRoleArn: !GetAtt 'BackupRole.Arn'
+        Resources:
+        - !GetAtt 'Table.Arn'
+        SelectionName: !Ref 'AWS::StackName'
 Outputs:
   ModuleId:
     Value: 'dynamodb-table'
   ModuleVersion:
-    Value: '1.2.0'
+    Value: '1.3.0'
   StackName:
     Value: !Ref 'AWS::StackName'
   Arn:
