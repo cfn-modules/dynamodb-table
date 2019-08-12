@@ -181,10 +181,10 @@ Resources:
     </tr>
     <tr>
       <td>BackupRetentionPeriod</td>
-      <td>The number of days to keep backups of the table</td>
+      <td>The number of days to keep backups of the table (set to 0 to disable)</td>
       <td>30</td>
       <td>no</td>
-      <td>[1-35]</td>
+      <td>[0-35]</td>
     </tr>
     <tr>
       <td>BackupScheduleExpression</td>

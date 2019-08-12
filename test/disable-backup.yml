@@ -1,0 +1,10 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'cfn-modules test'
+Resources:
+  Table:
+    Type: 'AWS::CloudFormation::Stack'
+    Properties:
+      Parameters:
+        BackupRetentionPeriod: '0'
+      TemplateURL: './node_modules/@cfn-modules/dynamodb-table/module.yml'
