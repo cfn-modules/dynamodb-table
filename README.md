@@ -25,6 +25,7 @@ Resources:
     Properties:
       Parameters:
         AlertingModule: !GetAtt 'Alerting.Outputs.StackName' # optional
+        KmsKeyModule: !GetAtt 'Key.Outputs.StackName' # optional
         TableName: user # optional
         PartitionKeyName: id # optional
         PartitionKeyType: S # optional
@@ -37,7 +38,7 @@ Resources:
         MaxReadCapacityUnits: '1' # optional
         MinReadCapacityUnits: '1' # optional
         ReadCapacityUnitsUtilizationTarget: '80' # optional
-        Encryption: 'false' # optional
+        Encryption: 'false' # optional; deprecated in v1, will be removed in v3, use KmsKeyModule instead!
         StreamViewType: DISABLED # optional
         TtlAttributeName: '' # optional
         BackupRetentionPeriod: '30' # optional
@@ -70,6 +71,13 @@ Resources:
     <tr>
       <td>AlertingModule</td>
       <td>Stack name of <a href="https://www.npmjs.com/package/@cfn-modules/alerting">alerting module</a></td>
+      <td></td>
+      <td>no</td>
+      <td></td>
+    </tr>
+     <tr>
+      <td>KmsKeyModule</td>
+      <td>Stack name of <a href="https://www.npmjs.com/package/@cfn-modules/kms-key">kms-key module</a></td>
       <td></td>
       <td>no</td>
       <td></td>
@@ -160,7 +168,7 @@ Resources:
     </tr>
     <tr>
       <td>Encryption</td>
-      <td>Enable server side encryption using KMS (AWS managed) CMK</td>
+      <td>Deprecated in v1, will be removed in v3, use KmsKeyModule instead! Enable server side encryption using KMS (AWS managed) CMK</td>
       <td>false</td>
       <td>no</td>
       <td>[aws, false]</td>

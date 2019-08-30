@@ -2,9 +2,13 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: 'cfn-modules test'
 Resources:
+  Key:
+    Type: 'AWS::CloudFormation::Stack'
+    Properties:
+      TemplateURL: './node_modules/@cfn-modules/kms-key/module.yml'
   Table:
     Type: 'AWS::CloudFormation::Stack'
     Properties:
       Parameters:
-        KmsKeyModule: !GetAtt 'Key.Outputs.StackName'
+        BillingAndScalingMode: ONDEMAND
       TemplateURL: './node_modules/@cfn-modules/dynamodb-table/module.yml'
