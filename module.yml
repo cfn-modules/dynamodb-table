@@ -141,7 +141,7 @@ Resources:
       SSESpecification:
         KMSMasterKeyId: !If [HasKmsKeyModule, {'Fn::ImportValue': !Sub '${KmsKeyModule}-Arn'}, !Ref 'AWS::NoValue']
         SSEEnabled: !If [HasKmsKeyModule, true, !If [HasAwsManagedEncryption, true, false]]
-        SSEType: !If [HasAwsManagedEncryption, KMS, !Ref 'AWS::NoValue']
+        SSEType: !If [HasKmsKeyModule, KMS, !If [HasAwsManagedEncryption, KMS, !Ref 'AWS::NoValue']]
       StreamSpecification: !If [HasStream, {StreamViewType: !Ref StreamViewType}, !Ref 'AWS::NoValue']
       TableName: !If [HasTableName, !Ref TableName, !Ref 'AWS::NoValue']
       TimeToLiveSpecification: !If [HasTtlAttributeName, {AttributeName: !Ref TtlAttributeName, Enabled: true}, !Ref 'AWS::NoValue']
