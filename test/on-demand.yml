@@ -6,5 +6,5 @@ Resources:
     Type: 'AWS::CloudFormation::Stack'
     Properties:
       Parameters:
-        KmsKeyModule: !GetAtt 'Key.Outputs.StackName'
+        BillingAndScalingMode: ONDEMAND
       TemplateURL: './node_modules/@cfn-modules/dynamodb-table/module.yml'
