@@ -4,6 +4,7 @@
     "eslint": "6.6.0",
     "ava": "2.4.0",
     "@cfn-modules/test": "0.7.3",
+    "@cfn-modules/kms-key": "1.2.0",
     "@cfn-modules/dynamodb-table": "file:../"
   },
   "scripts": {

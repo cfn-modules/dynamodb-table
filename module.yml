@@ -20,6 +20,10 @@ Parameters:
     Description: 'Optional but recommended stack name of alerting module.'
     Type: String
     Default: ''
+  KmsKeyModule:
+    Description: 'Optional but recommended stack name of kms-key module.'
+    Type: String
+    Default: ''
   TableName:
     Description: 'Optional name of the table (auto generated if not set).'
     Type: String
@@ -71,8 +75,8 @@ Parameters:
     Description: 'Target read capacity utilization (in percent) that auto scaling tries to achieve (if you have spiky reads, a lower number is better; ignored when BillingAndScalingMode := ONDEMAND).'
     Type: Number
     Default: 80
-  Encryption: # TODO DynamoDB does not support customer managed CMKs. How should we handle this? Remove Encryption parameter and wait for customer managed CMK support using the kms-key module?
-    Description: 'Enable server side encryption using KMS (AWS managed) CMK.'
+  Encryption:
+    Description: 'Deprecated in v1, will be removed in v3, use KmsKeyModule instead! Enable server side encryption using KMS (AWS managed) CMK.'
     Type: String
     Default: false
     AllowedValues: [aws, false]
@@ -102,6 +106,7 @@ Parameters:
     AllowedValues: [true, false]
 Conditions:
   HasAlertingModule: !Not [!Equals [!Ref AlertingModule, '']]
+  HasKmsKeyModule: !Not [!Equals [!Ref KmsKeyModule, '']]
   HasSortKey: !Not [!Equals [!Ref SortKeyName, '']]
   HasTableName: !Not [!Equals [!Ref TableName, '']]
   HasAwsManagedEncryption: !Equals [!Ref Encryption, aws]
@@ -134,7 +139,9 @@ Resources:
         PointInTimeRecoveryEnabled: !Ref PointInTimeRecoveryEnabled
       ProvisionedThroughput: !If [HasBillingAndScalingModeProvisioned, {ReadCapacityUnits: !Ref MinReadCapacityUnits, WriteCapacityUnits: !Ref MinWriteCapacityUnits}, !Ref 'AWS::NoValue']
       SSESpecification:
-        SSEEnabled: !If [HasAwsManagedEncryption, true, false]
+        KMSMasterKeyId: !If [HasKmsKeyModule, {'Fn::ImportValue': !Sub '${KmsKeyModule}-Arn'}, !Ref 'AWS::NoValue']
+        SSEEnabled: !If [HasKmsKeyModule, true, !If [HasAwsManagedEncryption, true, false]]
+        SSEType: !If [HasKmsKeyModule, KMS, !If [HasAwsManagedEncryption, KMS, !Ref 'AWS::NoValue']]
       StreamSpecification: !If [HasStream, {StreamViewType: !Ref StreamViewType}, !Ref 'AWS::NoValue']
       TableName: !If [HasTableName, !Ref TableName, !Ref 'AWS::NoValue']
       TimeToLiveSpecification: !If [HasTtlAttributeName, {AttributeName: !Ref TtlAttributeName, Enabled: true}, !Ref 'AWS::NoValue']
@@ -350,7 +357,7 @@ Outputs:
   ModuleId:
     Value: 'dynamodb-table'
   ModuleVersion:
-    Value: '1.5.0'
+    Value: '1.6.0'
   StackName:
     Value: !Ref 'AWS::StackName'
   Arn:
