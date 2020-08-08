@@ -1,6 +1,3 @@
-[![Build Status](https://travis-ci.org/cfn-modules/dynamodb-table.svg?branch=master)](https://travis-ci.org/cfn-modules/dynamodb-table)
-[![NPM version](https://img.shields.io/npm/v/@cfn-modules/dynamodb-table.svg)](https://www.npmjs.com/package/@cfn-modules/dynamodb-table)
-
 # cfn-modules: AWS DynamoDB table
 
 AWS DynamoDB table with auto scaling and [alerting](https://www.npmjs.com/package/@cfn-modules/alerting).
